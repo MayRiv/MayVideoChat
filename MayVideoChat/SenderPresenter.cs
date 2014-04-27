@@ -19,7 +19,6 @@ namespace MayVideoChat
         private Socket socket;
         
         private WaveIn waveIn;
-        //private Thread thread;
 
         private ISenderView senderView;
 
@@ -28,14 +27,18 @@ namespace MayVideoChat
         private VideoCaptureDevice camera;
 
         Socket imageSocket;
-        TcpClient imageClient;
-        private NetworkStream imageStream;
         public SenderPresenter(ISenderView view)
         {
             senderView = view;
-            senderView.TryCall += new EventHandler<EventArgs>(onTryingCall);
+            senderView.TryCall += new EventHandler<TryCallArguments>(onTryingCall);
+            senderView.TryClose += senderView_TryClose;
         }
-        private void onTryingCall(object sender, EventArgs e)
+
+        void senderView_TryClose(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+        private void onTryingCall(object sender, TryCallArguments e)
         {
             waveIn = new WaveIn();
             waveIn.WaveFormat = new WaveFormat(8000, 16, 1);
@@ -43,7 +46,7 @@ namespace MayVideoChat
             {
                 try
                 {
-                    IPEndPoint remotePoint = new IPEndPoint(IPAddress.Parse(senderView.IP), 5555);
+                    IPEndPoint remotePoint = new IPEndPoint(e.Adress, 5555);
                     socket.SendTo(e1.Buffer, remotePoint);
                 }
                 catch (Exception ex)

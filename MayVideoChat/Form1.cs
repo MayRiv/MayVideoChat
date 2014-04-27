@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,6 +21,7 @@ namespace MayVideoChat
         public string IP
         {
             get { return textBox1.Text; }
+            set { textBox1.Text = value; }
         }
         public PictureBox Picture
         {
@@ -29,7 +31,8 @@ namespace MayVideoChat
         {
             if (callButton.Text == "Call") 
             {
-                TryCall.Invoke(sender, e);
+                IPAddress addr = IPAddress.Parse(IP);
+                TryCall.Invoke(sender, new TryCallArguments(addr));
                 callButton.Text = "End Call";
             }
         }
@@ -39,12 +42,17 @@ namespace MayVideoChat
             MessageBox.Show(e.Message);
         }
 
-        public event EventHandler<EventArgs> TryCall;
-        public event EventHandler<EventArgs> StartReceive;
+        public event EventHandler<TryCallArguments> TryCall;
+        public event EventHandler<EventArgs> TryClose;
 
         private void receivingButton_Click(object sender, EventArgs e)
         {
-            StartReceive.Invoke(sender, e);
+            //StartReceive.Invoke(sender, e);
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            TryClose.Invoke(sender, e);
         }
     }
 }

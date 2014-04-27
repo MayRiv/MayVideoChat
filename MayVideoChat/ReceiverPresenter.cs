@@ -17,15 +17,22 @@ namespace MayVideoChat
         private IReceiverView view;
         private Socket listeningSocket;
         private WaveOut output;
-        private Thread thread;
+        private Thread soundThread;
+        private Thread imageThread;
         BufferedWaveProvider bufferStream;
         public ReceiverPresenter(IReceiverView view)
         {
             this.view = view;
-            view.StartReceive += view_StartReceive;
+            view.TryClose += view_TryClose;
+            StartReceive();
         }
 
-        void view_StartReceive(object sender, EventArgs e)
+        void view_TryClose(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void StartReceive()
         {
        
 
@@ -33,22 +40,17 @@ namespace MayVideoChat
             listeningSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             listeningSocket.Bind(localIPSound);
 
-             output = new WaveOut();
+            output = new WaveOut();
             
             bufferStream = new BufferedWaveProvider(new WaveFormat(8000, 16, 1));
             output.Init(bufferStream);
             
 
-            thread = new Thread(Listening);
-            thread.Start();
+            soundThread = new Thread(Listening);
+            soundThread.Start();
 
-            var thread2 = new Thread(ListeningImage);
-            thread2.Start();
-            
-           
-            //ListeningImage();
-           
-
+            imageThread = new Thread(ListeningImage);
+            imageThread.Start();
         }
         
         private void Listening()
@@ -78,30 +80,34 @@ namespace MayVideoChat
             TcpListener l = new TcpListener((IPEndPoint)ep);
             l.Start();
             
-            while (true)
+            
+            try
             {
+                Socket s = l.AcceptSocket();
+                IPEndPoint adress = (IPEndPoint)s.RemoteEndPoint;
                 try
                 {
-                    Socket s = l.AcceptSocket();
-                    
-                    NetworkStream stream = new NetworkStream(s);
-                    
-                    //view.Picture.Image = Bitmap.FromStream(stream);
-                    while (true)
-                    {
-                        byte[] data = new byte[1024];
-                        data = ReceiveVarData(s);
-                        MemoryStream st = new MemoryStream(data);
-                        
-                        view.Picture.Image = Bitmap.FromStream(st);
-                        
-                    }
-                    
+                    //view.TryCall.Invoke(this, new TryCallArguments(adress));
+                }
+                catch (Exception e)
+                {
 
                 }
-                catch (SocketException ex)
-                { view.ShowError(ex); }
+                while (true)
+                {
+                    byte[] data = new byte[1024];
+                    data = ReceiveVarData(s);
+                    MemoryStream st = new MemoryStream(data);
+                    
+                    view.Picture.Image = Bitmap.FromStream(st);
+                    
+                }
+                
+
             }
+            catch (SocketException ex)
+            { view.ShowError(ex); }
+            
         }
 
         private static byte[] ReceiveVarData(Socket s)
@@ -111,6 +117,7 @@ namespace MayVideoChat
             byte[] datasize = new byte[4];
 
             recv = s.Receive(datasize, 0, 4, 0);
+            
             int size = BitConverter.ToInt32(datasize, 0);
             int dataleft = size;
             byte[] data = new byte[size];
@@ -128,17 +135,7 @@ namespace MayVideoChat
             }
             return data;
         }
-           //private void f(Object s)
-           //{
-           //    NetworkStream stream = new NetworkStream((Socket)s);
-               
-           //         while (true)
-           //         {
-           //            //if (stream.DataAvailable)
-           //                 view.Picture.Image = Bitmap.FromStream(stream);
-           //         }
-
-           //}
+        
        
 
         

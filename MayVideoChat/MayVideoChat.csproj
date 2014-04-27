@@ -67,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceiverPresenter.cs" />
     <Compile Include="SenderPresenter.cs" />
+    <Compile Include="TryCallArguments.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
