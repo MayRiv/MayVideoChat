@@ -32,6 +32,11 @@
             this.label1 = new System.Windows.Forms.Label();
             this.callButton = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.messageTextBox = new System.Windows.Forms.TextBox();
+            this.sendButton = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.nicknameTextBox = new System.Windows.Forms.TextBox();
+            this.logTextBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -72,18 +77,67 @@
             this.pictureBox1.TabIndex = 3;
             this.pictureBox1.TabStop = false;
             // 
+            // messageTextBox
+            // 
+            this.messageTextBox.Location = new System.Drawing.Point(13, 491);
+            this.messageTextBox.Multiline = true;
+            this.messageTextBox.Name = "messageTextBox";
+            this.messageTextBox.Size = new System.Drawing.Size(563, 44);
+            this.messageTextBox.TabIndex = 6;
+            // 
+            // sendButton
+            // 
+            this.sendButton.Location = new System.Drawing.Point(16, 541);
+            this.sendButton.Name = "sendButton";
+            this.sendButton.Size = new System.Drawing.Size(561, 23);
+            this.sendButton.TabIndex = 7;
+            this.sendButton.Text = "Send";
+            this.sendButton.UseVisualStyleBackColor = true;
+            this.sendButton.Click += new System.EventHandler(this.sendButton_Click);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(393, 9);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(83, 13);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "Your Nickname:";
+            // 
+            // nicknameTextBox
+            // 
+            this.nicknameTextBox.Location = new System.Drawing.Point(479, 6);
+            this.nicknameTextBox.Name = "nicknameTextBox";
+            this.nicknameTextBox.Size = new System.Drawing.Size(98, 20);
+            this.nicknameTextBox.TabIndex = 9;
+            this.nicknameTextBox.Text = "User";
+            // 
+            // logTextBox
+            // 
+            this.logTextBox.Location = new System.Drawing.Point(12, 392);
+            this.logTextBox.Multiline = true;
+            this.logTextBox.Name = "logTextBox";
+            this.logTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.logTextBox.Size = new System.Drawing.Size(564, 93);
+            this.logTextBox.TabIndex = 10;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(589, 408);
+            this.ClientSize = new System.Drawing.Size(589, 576);
+            this.Controls.Add(this.logTextBox);
+            this.Controls.Add(this.nicknameTextBox);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.sendButton);
+            this.Controls.Add(this.messageTextBox);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.callButton);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -96,6 +150,11 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button callButton;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.TextBox messageTextBox;
+        private System.Windows.Forms.Button sendButton;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox nicknameTextBox;
+        private System.Windows.Forms.TextBox logTextBox;
     }
 }
 

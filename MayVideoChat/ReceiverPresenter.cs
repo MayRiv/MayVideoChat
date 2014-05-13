@@ -15,11 +15,14 @@ namespace MayVideoChat
     class ReceiverPresenter
     {
         private IReceiverView view;
+        public static bool exit = false; 
+        private TcpListener imageTcpListener;
         private Socket listeningSocket;
         private WaveOut output;
         private Thread soundThread;
         private Thread imageThread;
-        BufferedWaveProvider bufferStream;
+        private Thread messageThread;
+        private BufferedWaveProvider bufferStream;
         public ReceiverPresenter(IReceiverView view)
         {
             this.view = view;
@@ -29,12 +32,11 @@ namespace MayVideoChat
 
         void view_TryClose(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            exit = true;
         }
 
         private void StartReceive()
         {
-       
 
             var localIPSound = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5555);
             listeningSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -51,65 +53,103 @@ namespace MayVideoChat
 
             imageThread = new Thread(ListeningImage);
             imageThread.Start();
+
+            messageThread = new Thread(ListeningMessage);
+            messageThread.Start();
         }
         
         private void Listening()
         {
             output.Play();
-            EndPoint remoteIp = new IPEndPoint(IPAddress.Any, 0);
-
-            while (true)
+            EndPoint remoteIp = new IPEndPoint(IPAddress.Any, 5555);
+            try
             {
-                try
+                while (!exit)
                 {
-                    byte[] data = new byte[65535];
-                    int received = listeningSocket.ReceiveFrom(data, ref remoteIp);
-                    bufferStream.AddSamples(data, 0, received);
+                    try
+                    {
+                        byte[] data = new byte[65535];
+                        int received = listeningSocket.ReceiveFrom(data, ref remoteIp);
+                        bufferStream.AddSamples(data, 0, received);
+                    }
+                    catch (SocketException ex)
+                    { view.ShowError(ex); }
                 }
-                catch (SocketException ex)
-                { view.ShowError(ex); }
+            }
+            finally
+            {
+                output.Stop();
+
             }
         }
         
         private void ListeningImage()
         {
-            output.Play();
-            EndPoint remoteIp = new IPEndPoint(IPAddress.Any, 5555);
+           
+            //EndPoint remoteIp = new IPEndPoint(IPAddress.Any, 5555);
             EndPoint ep =  new IPEndPoint(IPAddress.Any,6666);
             
-            TcpListener l = new TcpListener((IPEndPoint)ep);
-            l.Start();
-            
-            
+            imageTcpListener = new TcpListener((IPEndPoint)ep);
+            imageTcpListener.Start();
+
+
             try
             {
-                Socket s = l.AcceptSocket();
+                Socket s = imageTcpListener.AcceptSocket();
                 IPEndPoint adress = (IPEndPoint)s.RemoteEndPoint;
-                try
-                {
-                    //view.TryCall.Invoke(this, new TryCallArguments(adress));
-                }
-                catch (Exception e)
-                {
 
-                }
-                while (true)
+                view.Call(new TryCallArguments(adress.Address));
+                
+                while (!exit)
                 {
                     byte[] data = new byte[1024];
                     data = ReceiveVarData(s);
                     MemoryStream st = new MemoryStream(data);
-                    
-                    view.Picture.Image = Bitmap.FromStream(st);
-                    
-                }
-                
 
+                    view.Picture.Image = Bitmap.FromStream(st);
+                }
             }
             catch (SocketException ex)
             { view.ShowError(ex); }
             
-        }
+            
+            finally
+            {
+                imageTcpListener.Stop();
 
+            }
+            
+        }
+        private void ListeningMessage()
+        {
+            var localIPSound = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 7777);
+            var listeningSocketMessage = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            listeningSocketMessage.Bind(localIPSound);
+            EndPoint remoteIp = new IPEndPoint(IPAddress.Any, 7777);
+            try
+            {
+                while (!exit)
+                {
+                    try
+                    {
+                        byte[] data = new byte[65535];
+                        int received = listeningSocketMessage.ReceiveFrom(data, ref remoteIp);
+                        char[] messageArray = new char[received];
+                        for(int i = 0; i < received; i++)
+                            messageArray[i] = (char)data[i];
+                        string message = new string(messageArray);
+                        //view.UpdateLog(message);
+                        view.Log.Invoke(new Action(() => { view.Log.AppendText(message + Environment.NewLine); }));
+
+                    }
+                    catch (SocketException ex)
+                    { view.ShowError(ex); }
+                }
+            }
+            catch(Exception e)
+            {
+            }
+        }
         private static byte[] ReceiveVarData(Socket s)
         {
             int total = 0;

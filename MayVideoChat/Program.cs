@@ -17,6 +17,7 @@ namespace MayVideoChat
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Form1 form = new Form1();
+
             SenderPresenter senderPresenter = new SenderPresenter(form);
             ReceiverPresenter receiverPresenter = new ReceiverPresenter(form);
             Application.Run(form);

@@ -10,8 +10,13 @@ namespace MayVideoChat
     interface ISenderView
     {
         string IP { get; }
+        string Message { get; }
+
+        string Nickname { get; }
+
         event EventHandler<TryCallArguments> TryCall;
         event EventHandler<EventArgs> TryClose;
+        event EventHandler<EventArgs> TrySendMessage;
         void ShowError(Exception e);
     }
 }

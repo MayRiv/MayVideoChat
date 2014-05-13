@@ -10,8 +10,9 @@ namespace MayVideoChat
     interface IReceiverView
     {
         string IP { set; }
+        TextBox Log { get; }
         PictureBox Picture { get; }
-        event EventHandler<TryCallArguments> TryCall;
+        void Call(TryCallArguments a);
         event EventHandler<EventArgs> TryClose;
         void ShowError(Exception e);
     }

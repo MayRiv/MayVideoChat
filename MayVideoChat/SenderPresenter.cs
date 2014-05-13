@@ -16,6 +16,7 @@ namespace MayVideoChat
 {
     class SenderPresenter
     {
+        private bool isCalling = false;
         private Socket socket;
         
         private WaveIn waveIn;
@@ -31,15 +32,30 @@ namespace MayVideoChat
         {
             senderView = view;
             senderView.TryCall += new EventHandler<TryCallArguments>(onTryingCall);
-            senderView.TryClose += senderView_TryClose;
+            senderView.TrySendMessage += senderView_TrySendMessage;
+        }
+
+        void senderView_TrySendMessage(object sender, EventArgs e)
+        {
+            Socket messageSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            String text = senderView.Nickname + " : " + senderView.Message;
+            char[] charArray = text.ToCharArray();
+
+            byte[] array = new byte[charArray.Length];
+            for (int i = 0; i < charArray.Length; i++)
+                array[i] = (byte)charArray[i];
+            messageSocket.SendTo(array, new IPEndPoint(IPAddress.Parse(senderView.IP),7777));
         }
 
         void senderView_TryClose(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            if (camera != null)
+                camera.Stop();
         }
         private void onTryingCall(object sender, TryCallArguments e)
         {
+            if (isCalling == true) return;
+            else isCalling = true;
             waveIn = new WaveIn();
             waveIn.WaveFormat = new WaveFormat(8000, 16, 1);
             waveIn.DataAvailable += (sender1, e1) =>
@@ -61,12 +77,12 @@ namespace MayVideoChat
 
             videoCaptureDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
            
-            IPEndPoint ipep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6666);
+            IPEndPoint ipep = new IPEndPoint(e.Adress, 6666);
 
             imageSocket = new Socket(AddressFamily.InterNetwork,
                             SocketType.Stream, ProtocolType.Tcp);
             imageSocket.Connect(ipep);
-
+            
             camera = new VideoCaptureDevice(videoCaptureDevices[0].MonikerString);
             camera.NewFrame += camera_NewFrame;
             camera.Start();
@@ -76,7 +92,7 @@ namespace MayVideoChat
             Bitmap bitmap = (Bitmap)e.Frame.Clone();
 
             MemoryStream ms = new MemoryStream();
-            // Save to memory using the Jpeg format
+
             bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
 
             SendVarData(imageSocket,ms.GetBuffer());
