@@ -32,7 +32,7 @@ namespace MayVideoChat
 
         void view_TryClose(object sender, EventArgs e)
         {
-            exit = true;
+           // exit = true;
         }
 
         private void StartReceive()
@@ -115,7 +115,7 @@ namespace MayVideoChat
             
             finally
             {
-                imageTcpListener.Stop();
+                //imageTcpListener.Stop();
 
             }
             
@@ -138,7 +138,6 @@ namespace MayVideoChat
                         for(int i = 0; i < received; i++)
                             messageArray[i] = (char)data[i];
                         string message = new string(messageArray);
-                        //view.UpdateLog(message);
                         view.Log.Invoke(new Action(() => { view.Log.AppendText(message + Environment.NewLine); }));
 
                     }

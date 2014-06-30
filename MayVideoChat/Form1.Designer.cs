@@ -114,6 +114,7 @@
             // 
             // logTextBox
             // 
+            this.logTextBox.Enabled = false;
             this.logTextBox.Location = new System.Drawing.Point(12, 392);
             this.logTextBox.Multiline = true;
             this.logTextBox.Name = "logTextBox";
@@ -136,7 +137,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "MayVideoChat";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);

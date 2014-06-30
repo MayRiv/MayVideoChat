@@ -16,7 +16,10 @@ namespace MayVideoChat
         public Form1()
         {
             InitializeComponent();
+
         }
+
+        
         public TextBox Log
         {
             get
@@ -50,11 +53,16 @@ namespace MayVideoChat
         }
         private void callButton_Click(object sender, EventArgs e)
         {
-            if (callButton.Text == "Call") 
+            if (callButton.Text == "Call")
             {
                 IPAddress addr = IPAddress.Parse(IP);
                 TryCall.Invoke(sender, new TryCallArguments(addr));
                 callButton.Text = "End Call";
+            }
+            else
+            {
+                TryClose.Invoke(sender, e);
+                callButton.Text = "Call";
             }
         }
 
@@ -68,13 +76,22 @@ namespace MayVideoChat
         public event EventHandler<EventArgs> TrySendMessage;
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //TryClose.Invoke(sender, e);
+            Environment.Exit(3);
         }
 
         private void sendButton_Click(object sender, EventArgs e)
         {
             TrySendMessage.Invoke(sender, e);
             messageTextBox.Clear();
+        }
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Enter))
+            {
+                sendButton_Click(this, new EventArgs());
+                
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
      

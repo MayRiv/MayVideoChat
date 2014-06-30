@@ -32,6 +32,7 @@ namespace MayVideoChat
         {
             senderView = view;
             senderView.TryCall += new EventHandler<TryCallArguments>(onTryingCall);
+            senderView.TryClose += new EventHandler<EventArgs>(senderView_TryClose);
             senderView.TrySendMessage += senderView_TrySendMessage;
         }
 
@@ -49,8 +50,9 @@ namespace MayVideoChat
 
         void senderView_TryClose(object sender, EventArgs e)
         {
-            if (camera != null)
-                camera.Stop();
+            EndCall();
+            //if (camera != null)
+             //   camera.Stop();
         }
         private void onTryingCall(object sender, TryCallArguments e)
         {
@@ -58,11 +60,11 @@ namespace MayVideoChat
             else isCalling = true;
             waveIn = new WaveIn();
             waveIn.WaveFormat = new WaveFormat(8000, 16, 1);
+            IPEndPoint remotePoint = new IPEndPoint(e.Adress, 5555);
             waveIn.DataAvailable += (sender1, e1) =>
             {
                 try
-                {
-                    IPEndPoint remotePoint = new IPEndPoint(e.Adress, 5555);
+                {                
                     socket.SendTo(e1.Buffer, remotePoint);
                 }
                 catch (Exception ex)
@@ -115,6 +117,12 @@ namespace MayVideoChat
                 dataleft -= sent;
             }
             return total;
+        }
+        private void EndCall()
+        {
+            isCalling = false;
+            camera.Stop();
+            waveIn.StopRecording();
         }
     }
 }
